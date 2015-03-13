@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{88AE677E-46E6-4406-BE9F-673C0ED21E4E}</ProjectGuid>
+    <ProjectGuid>{BA338307-18D3-4D06-B78C-53564F109175}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Calendar.Logic</RootNamespace>
-    <AssemblyName>Calendar.Logic</AssemblyName>
+    <RootNamespace>Calendar.Services.Tests</RootNamespace>
+    <AssemblyName>Calendar.Services.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,6 +30,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentAssertions">
+      <HintPath>..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentAssertions.Core">
+      <HintPath>..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -39,9 +48,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Event.cs" />
-    <Compile Include="IEventsService.cs" />
+    <Compile Include="EventsServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Calendar.Logic\Calendar.Logic.csproj">
+      <Project>{88AE677E-46E6-4406-BE9F-673C0ED21E4E}</Project>
+      <Name>Calendar.Logic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Calendar.Services\Calendar.Services.csproj">
+      <Project>{B59014FD-A6C1-4004-AC96-1041522A9DF6}</Project>
+      <Name>Calendar.Services</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
