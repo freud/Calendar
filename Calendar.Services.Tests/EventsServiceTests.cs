@@ -77,7 +77,6 @@ namespace Calendar.Services.Tests
                     new Event(_currentFakedTime.Date.AddDays(-8)),
                     new Event(_currentFakedTime.Date.AddDays(1))
                 });
-
             }
         }
         
