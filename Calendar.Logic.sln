@@ -7,15 +7,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calendar.Logic", "Calendar.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calendar.Logic.Tests", "Calendar.Logic.Tests\Calendar.Logic.Tests.csproj", "{E8F89D80-5378-46F9-A449-EDBBE3F74215}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calendar.Api", "Calendar.Service\Calendar.Api.csproj", "{F38E7778-7A79-42A4-8EE5-09498447A8D1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calendar.Api", "Calendar.Api\Calendar.Api.csproj", "{F38E7778-7A79-42A4-8EE5-09498447A8D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calendar.Api.Tests", "Calendar.Service.Tests\Calendar.Api.Tests.csproj", "{8DD8FD88-9769-4524-A746-780C5324FEFD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calendar.Api.Tests", "Calendar.Api.Tests\Calendar.Api.Tests.csproj", "{8DD8FD88-9769-4524-A746-780C5324FEFD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calendar.Services", "Calendar.Services\Calendar.Services.csproj", "{B59014FD-A6C1-4004-AC96-1041522A9DF6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calendar.Services.Tests", "Calendar.Services.Tests\Calendar.Services.Tests.csproj", "{BA338307-18D3-4D06-B78C-53564F109175}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2EBBA0B8-A918-4EB2-B3F8-F9E15FD6F620}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calendar.Data", "Calendar.Data\Calendar.Data.csproj", "{520BBD5C-56EE-4151-A15A-6ADC824C7734}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{BA338307-18D3-4D06-B78C-53564F109175}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA338307-18D3-4D06-B78C-53564F109175}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA338307-18D3-4D06-B78C-53564F109175}.Release|Any CPU.Build.0 = Release|Any CPU
+		{520BBD5C-56EE-4151-A15A-6ADC824C7734}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{520BBD5C-56EE-4151-A15A-6ADC824C7734}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{520BBD5C-56EE-4151-A15A-6ADC824C7734}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{520BBD5C-56EE-4151-A15A-6ADC824C7734}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
