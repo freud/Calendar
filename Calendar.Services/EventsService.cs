@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Calendar.Logic;
-using Simple.Data;
+using Raven.Client;
+using Raven.Client.Linq;
 
 namespace Calendar.Services
 {
     public class EventsService : IEventsService
     {
-        private readonly Event[] _events;
+        private readonly IDocumentStore _store;
 
-        public EventsService(Event[] events)
+        public EventsService(IDocumentStore store)
         {
-            _events = events;
+            _store = store;
         }
 
         public IEnumerable<Event> GetEvents(DateTime @from, DateTime to)
         {
-            return _events.Where(e => e.StartDate >= from && e.StartDate <= to);
+            using (var session = _store.OpenSession())
+            {
+                return session.Query<Event>().Where(e => e.StartDate >= @from && e.StartDate <= to);
+            }
         }
     }
 }
