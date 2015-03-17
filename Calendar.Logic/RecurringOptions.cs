@@ -1,6 +1,6 @@
 ﻿namespace Calendar.Logic
 {
-    public class FullDayEvent : Event
+    public class RecurringOptions
     {
     }
 }

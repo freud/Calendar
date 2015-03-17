@@ -20,7 +20,6 @@ namespace Calendar.Data
                     return DocumentConvention.DefaultTypeTagName(type);
                 }
             };
-
             var store = new EmbeddableDocumentStore
             {
                 RunInMemory = true,

@@ -56,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventSchedulerServiceTests.cs" />
     <Compile Include="EventsServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -67,6 +68,10 @@
     <ProjectReference Include="..\Calendar.Data\Calendar.Data.csproj">
       <Project>{520bbd5c-56ee-4151-a15a-6adc824c7734}</Project>
       <Name>Calendar.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Calendar.Helpers\Calendar.Helpers.csproj">
+      <Project>{5FD6A76A-0D30-43B1-8793-C5E77B244884}</Project>
+      <Name>Calendar.Helpers</Name>
     </ProjectReference>
     <ProjectReference Include="..\Calendar.Logic\Calendar.Logic.csproj">
       <Project>{88AE677E-46E6-4406-BE9F-673C0ED21E4E}</Project>

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Calendar.Api.Controllers;
+using Calendar.Helpers;
 using Calendar.Logic;
+using Calendar.Services;
 using NSubstitute;
 using NUnit.Framework;
 using FluentAssertions;
@@ -16,7 +18,7 @@ namespace Calendar.Service.Tests.Controllers
         public void GetEvents_GetAnyListOfEvents_ReturnsListOfEvents()
         {
             // Arrange
-            DateTime now = DateTime.Now;
+            DateTime now = ApplicationTime.Current;
 
             var fakeEvents = new List<Event>
             {
@@ -40,8 +42,8 @@ namespace Calendar.Service.Tests.Controllers
         public void GetEvents_GetEventsWithSpecifiedArguments_ChecksIfControllerCallsEventsServiceWithTheseArguments()
         {
             // Arrange
-            var from = DateTime.Now;
-            var to = DateTime.Now.AddMinutes(1);
+            var from = ApplicationTime.Current;
+            var to = ApplicationTime.Current.AddMinutes(1);
 
             var eventsService = Substitute.For<IEventsService>();
             

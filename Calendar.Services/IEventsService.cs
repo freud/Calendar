@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Calendar.Logic;
 
-namespace Calendar.Logic
+namespace Calendar.Services
 {
     public interface IEventsService
     {

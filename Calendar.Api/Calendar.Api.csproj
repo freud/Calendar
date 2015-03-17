@@ -101,6 +101,10 @@
       <Project>{88ae677e-46e6-4406-be9f-673c0ed21e4e}</Project>
       <Name>Calendar.Logic</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Calendar.Services\Calendar.Services.csproj">
+      <Project>{B59014FD-A6C1-4004-AC96-1041522A9DF6}</Project>
+      <Name>Calendar.Services</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

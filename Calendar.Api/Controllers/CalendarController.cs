@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Web.Http;
 using Calendar.Logic;
+using Calendar.Services;
 
 namespace Calendar.Api.Controllers
 {

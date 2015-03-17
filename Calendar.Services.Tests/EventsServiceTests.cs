@@ -1,4 +1,5 @@
 ﻿using Calendar.Data;
+using Calendar.Helpers;
 using Calendar.Logic;
 using FluentAssertions;
 using NUnit.Framework;
@@ -12,7 +13,7 @@ namespace Calendar.Services.Tests
     [TestFixture]
     public class EventsServiceTests
     {
-        private static DateTime _currentFakedTime = DateTime.Now;
+        private static DateTime _currentFakedTime = ApplicationTime.Current;
 
         [Test]
         public void GetEvents_GetAnyListOfEvents_ReturnsListOfEvents()

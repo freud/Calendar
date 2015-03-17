@@ -48,7 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventsService.cs" />
+    <Compile Include="IEventsService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WeeklyEventScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Calendar.Logic\Calendar.Logic.csproj">
