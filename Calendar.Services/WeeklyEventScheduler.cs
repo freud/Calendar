@@ -8,6 +8,11 @@ namespace Calendar.Services
     {
         public List<Event> Populate(Event @event, DateTime @from, DateTime to)
         {
+            if (!(@event.RecurringOptions is WeeklyRecurringOptions))
+            {
+                throw new InvalidOperationException("WeeklyEventScheduler requires WeeklyRecurringOptions as Event.ReccuringOptions");
+            }
+
             if (@event.StartDate > from)
             {
                 from = @event.StartDate;
@@ -16,74 +21,28 @@ namespace Calendar.Services
             var options = (WeeklyRecurringOptions) @event.RecurringOptions;
             var populatedEvents = new List<Event>();
 
-            foreach (WeekDays singleWeekDay in Enum.GetValues(typeof (WeekDays)))
+            var duration = @event.EndDate - @event.StartDate;
+            var totalDays = ((int) (to - @from).TotalDays) + 1;
+
+            for (var i = 0; i < totalDays; i++)
             {
-                if (!options.WeekDays.HasFlag(singleWeekDay))
+                var newStartDate = @from.AddDays(i) + @event.StartDate.TimeOfDay;
+                var weekDay = ConvertDayOfWeek(newStartDate.DayOfWeek);
+                var weekNumber = (int)Math.Floor(i / 7d);
+
+                if (weekNumber % options.RepeatEvery == 0 && options.WeekDays.HasFlag(weekDay) && options.RepeatUntil.CanBeRepeated(populatedEvents, newStartDate))
                 {
-                    continue;
-                }
-
-                var repeatEveryMultiplication = 7*options.RepeatEvery;
-                var firstOccurenceDate = GetFirstOccurenceDate(@from, singleWeekDay);
-                var duration = @event.EndDate - @event.StartDate;
-                var numberOfOccurences = (int)Math.Floor((to - firstOccurenceDate).TotalDays / repeatEveryMultiplication) + 1;
-
-                for (var i = 0; i < numberOfOccurences; i++)
-                {
-                    var newStartDate = firstOccurenceDate.AddDays(repeatEveryMultiplication * i);
-                    var newEndDate = newStartDate + duration;
-
-                    if (options.RepeatUntil == null || newStartDate <= options.RepeatUntil.EndDate)
-                    {
-                        populatedEvents.Add(new Event(newStartDate, newEndDate));
-                    }
+                    populatedEvents.Add(new Event(newStartDate, newStartDate + duration));
                 }
             }
 
             return populatedEvents;
         }
 
-        /// <summary>
-        /// Helper method to calculate first specified week day since given date
-        /// </summary>
-        /// <param name="from">date date</param>
-        /// <param name="singleWeekDay">week day to find</param>
-        /// <remarks>This is internally used by Populate</remarks>
-        public DateTime GetFirstOccurenceDate(DateTime @from, WeekDays singleWeekDay)
+        private WeekDays ConvertDayOfWeek(DayOfWeek dayOfWeek)
         {
-            var weekDayOffset = ((int)Math.Log((int)singleWeekDay, 2));
-            var fromWeekDayOffset = NormalizeDayOfWeekOffset(@from);
-
-            if (weekDayOffset == fromWeekDayOffset)
-            {
-                return @from;
-            }
-
-            if (weekDayOffset < fromWeekDayOffset)
-            {
-                weekDayOffset += 7 - fromWeekDayOffset;
-            }
-            else
-            {
-                return @from.AddDays(weekDayOffset - fromWeekDayOffset);    
-            }
-
-            return @from.AddDays(weekDayOffset);
+            return (WeekDays) Enum.Parse(typeof (WeekDays), dayOfWeek.ToString());
         }
 
-        /// <summary>
-        /// Normalizes DayOfWeek to a 0-based offset where Monday becomes first value (0).
-        /// </summary>
-        /// <param name="date">date to normalize</param>
-        private int NormalizeDayOfWeekOffset(DateTime date)
-        {
-            var fromWeekDayOffset = ((int) (date.DayOfWeek - 1));
-            if (date.DayOfWeek == DayOfWeek.Sunday)
-            {
-                fromWeekDayOffset = 6;
-            }
-
-            return fromWeekDayOffset;
-        }
     }
 }

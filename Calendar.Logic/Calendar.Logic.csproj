@@ -42,6 +42,10 @@
     <Compile Include="Event.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecurringOptions.cs" />
+    <Compile Include="RepeatAlways.cs" />
+    <Compile Include="RepeatUntilDate.cs" />
+    <Compile Include="RepeatUntilStrategy.cs" />
+    <Compile Include="RepeatXTimes.cs" />
     <Compile Include="WeekDays.cs" />
     <Compile Include="WeeklyRecurringOptions.cs" />
   </ItemGroup>

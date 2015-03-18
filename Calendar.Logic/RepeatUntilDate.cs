@@ -1,14 +1,20 @@
 using System;
+using System.Collections.Generic;
 
 namespace Calendar.Logic
 {
-    public class RepeatUntilDate
+    public class RepeatUntilDate : RepeatUntilStrategy
     {
-        public DateTime EndDate { get; set; }
+        private readonly DateTime _endDate;
 
         public RepeatUntilDate(DateTime endDate)
         {
-            EndDate = endDate;
+            _endDate = endDate;
+        }
+
+        public override bool CanBeRepeated(ICollection<Event> alreadyPopulatedEvents, DateTime newStartDate)
+        {
+            return newStartDate <= _endDate;
         }
     }
 }

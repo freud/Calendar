@@ -327,38 +327,41 @@ namespace Calendar.Services.Tests
             populatedEvents.Should().BeEquivalentTo(expectedPopulatedEvents);
         }
 
-        private IEnumerable<TestCaseData> ForGivenDateAndWeekDayParams
+        private IEnumerable<TestCaseData> PopulatesEventsUntilSpecifiedDateParams
         {
-            get 
-            { 
-                yield return new TestCaseData(new DateTime(2015, 3, 16), WeekDays.Monday, new DateTime(2015, 3, 16));
-                yield return new TestCaseData(new DateTime(2015, 3, 17), WeekDays.Tuesday, new DateTime(2015, 3, 17));
-                yield return new TestCaseData(new DateTime(2015, 3, 18), WeekDays.Wednesday, new DateTime(2015, 3, 18));
-                yield return new TestCaseData(new DateTime(2015, 3, 19), WeekDays.Thursday, new DateTime(2015, 3, 19));
-                yield return new TestCaseData(new DateTime(2015, 3, 20), WeekDays.Friday, new DateTime(2015, 3, 20));
-                yield return new TestCaseData(new DateTime(2015, 3, 21), WeekDays.Saturday, new DateTime(2015, 3, 21));
-                yield return new TestCaseData(new DateTime(2015, 3, 22), WeekDays.Sunday, new DateTime(2015, 3, 22));
-                yield return new TestCaseData(new DateTime(2015, 3, 17), WeekDays.Monday, new DateTime(2015, 3, 23));
-                yield return new TestCaseData(new DateTime(2015, 3, 22), WeekDays.Wednesday, new DateTime(2015, 3, 25));
-                yield return new TestCaseData(new DateTime(2015, 3, 17), WeekDays.Friday, new DateTime(2015, 3, 20)); 
-            }
+            get
+            {
+                yield return new TestCaseData(new DateTime(2015, 3, 24), new[]
+                {
+                    new Event(new DateTime(2015, 3, 16)),
+                    new Event(new DateTime(2015, 3, 23))
+                });
+
+                yield return new TestCaseData(new DateTime(2015, 3, 16), new[]
+                {
+                    new Event(new DateTime(2015, 3, 16))
+                });
+
+                yield return new TestCaseData(new DateTime(2015, 4, 1), new[]
+                {
+                    new Event(new DateTime(2015, 3, 16)),
+                    new Event(new DateTime(2015, 3, 23)),
+                    new Event(new DateTime(2015, 3, 30))
+                });
+
+                yield return new TestCaseData(new DateTime(2015, 3, 30), new[]
+                {
+                    new Event(new DateTime(2015, 3, 16)),
+                    new Event(new DateTime(2015, 3, 23)),
+                    new Event(new DateTime(2015, 3, 30))
+                });
+
+                yield return new TestCaseData(new DateTime(2015, 3, 15), new Event[] {});
+            } 
         }
-
-        [TestCaseSource("ForGivenDateAndWeekDayParams")]
-        public void GetFirstOccurence_ForGivenDateAndWeekDay_ReturnsFirstMatchingDate(DateTime from, WeekDays weekDay, DateTime expectedResult)
-        {
-            // Arrange
-            var scheduler = new WeeklyEventScheduler();
-
-            // Act
-            var result = scheduler.GetFirstOccurenceDate(@from, weekDay);
-
-            // Assert
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void WeeklyEventScheduler_PopulatesEventsUntilSpecifiedDate_ReturnsPopulatedEvents()
+        
+        [TestCaseSource("PopulatesEventsUntilSpecifiedDateParams")]
+        public void WeeklyEventScheduler_PopulatesEventsUntilSpecifiedDate_ReturnsPopulatedEvents(DateTime repeatUntilDate, Event[] expectedPopulatedEvents)
         {
             // Arrange
             var calendarRangeFrom = new DateTime(2015, 3, 16);
@@ -368,7 +371,7 @@ namespace Calendar.Services.Tests
             var scheduler = new WeeklyEventScheduler();
             var options = new WeeklyRecurringOptions();
             options.WeekDays = WeekDays.Monday;
-            options.RepeatUntil = new RepeatUntilDate(new DateTime(2015, 3, 24));
+            options.RepeatUntil = new RepeatUntilDate(repeatUntilDate);
 
             var @event = new Event(eventStartDate);
             @event.RecurringOptions = options;
@@ -377,11 +380,56 @@ namespace Calendar.Services.Tests
             var populatedEvents = scheduler.Populate(@event, calendarRangeFrom, calendarRangeTo);
 
             // Assert
-            populatedEvents.Should().BeEquivalentTo(new []
-            {
-                new Event(new DateTime(2015, 3, 16)),
-                new Event(new DateTime(2015, 3, 23))
-            });
+            populatedEvents.Should().BeEquivalentTo(expectedPopulatedEvents);
         }
+
+        private IEnumerable<TestCaseData> PopulatesEventsOnlyXTimesParams
+        {
+            get
+            {
+                yield return new TestCaseData(2, new[]
+                {
+                    new Event(new DateTime(2015, 3, 16)),
+                    new Event(new DateTime(2015, 3, 23))
+                });
+
+                yield return new TestCaseData(1, new[]
+                {
+                    new Event(new DateTime(2015, 3, 16))
+                });
+
+                //yield return new TestCaseData(3, new[]
+                //{
+                //    new Event(new DateTime(2015, 3, 16)),
+                //    new Event(new DateTime(2015, 3, 23)),
+                //    new Event(new DateTime(2015, 3, 30))
+                //});
+            }
+        }
+
+
+        [TestCaseSource("PopulatesEventsOnlyXTimesParams")]
+        public void WeeklyEventScheduler_PopulatesEventsOnlyXTimes_ReturnsPopulatedEvents(int numberOfTimes, Event[] expectedPopulatedEvents)
+        {
+            // Arrange
+            var calendarRangeFrom = new DateTime(2015, 3, 16);
+            var calendarRangeTo = new DateTime(2015, 3, 31);
+            var eventStartDate = new DateTime(2015, 3, 15);
+
+            var scheduler = new WeeklyEventScheduler();
+            var options = new WeeklyRecurringOptions();
+            options.WeekDays = WeekDays.Monday;
+            options.RepeatUntil = new RepeatXTimes(numberOfTimes);
+
+            var @event = new Event(eventStartDate);
+            @event.RecurringOptions = options;
+
+            // Act
+            var populatedEvents = scheduler.Populate(@event, calendarRangeFrom, calendarRangeTo);
+
+            // Assert
+            populatedEvents.Should().BeEquivalentTo(expectedPopulatedEvents);
+        }
+
     }
 }
