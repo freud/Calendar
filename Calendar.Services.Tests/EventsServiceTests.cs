@@ -41,6 +41,20 @@ namespace Calendar.Services.Tests
             listOfEvents.Should().NotBeEmpty();
         }
 
+        [Test]
+        public void GetEvents_GetEmptyListOfEvents_ReturnsEmptyList()
+        {
+            // Arrange
+            var store = PrepareFakedEvents(new Event[]{});
+            var eventsService = (IEventsService) new EventsService(store);
+
+            // Act
+            var listOfEvents = eventsService.GetEvents(_currentFakedTime, _currentFakedTime);
+
+            // Assert
+            listOfEvents.Should().BeEmpty();
+        }
+
         private IEnumerable<TestCaseData> GetEventsFromTimeRangeParameters
         {
             get

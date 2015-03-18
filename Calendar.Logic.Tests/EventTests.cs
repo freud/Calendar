@@ -97,5 +97,33 @@ namespace Calendar.Logic.Tests
             @event.RecurringOptions.Should().BeNull();
             @event.IsRecurring.Should().BeFalse();
         }
+
+        [Test]
+        public void Event_EqualsWithTwoSameObjects_ReturnsTrue()
+        {
+            // Arrange
+            var event1 = new Event(new DateTime(2015, 1, 1));
+            var event2 = new Event(new DateTime(2015, 1, 1));
+
+            // Act
+            var result = event1.Equals(event2);
+
+            // Assert
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void Event_EqualsWithTwoDifferentObjects_ReturnsFalse()
+        {
+            // Arrange
+            var event1 = new Event(new DateTime(2015, 1, 1));
+            var event2 = new Event(new DateTime(2015, 1, 2));
+
+            // Act
+            var result = event1.Equals(event2);
+
+            // Assert
+            result.Should().BeFalse();
+        }
     }
 }

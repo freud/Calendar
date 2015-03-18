@@ -8,39 +8,82 @@ namespace Calendar.Services
     {
         public List<Event> Populate(Event @event, DateTime @from, DateTime to)
         {
-            var options = (WeeklyRecurringOptions) @event.RecurringOptions;
-
-            var firstOccurenceDate = GetFirstOccurenceDate(@from, options);
-
-            var duration = @event.EndDate - @event.StartDate;
-
-            var populatedEvents = new List<Event>();
-            var numberOfOccurences = (int)Math.Floor((to - firstOccurenceDate).TotalDays/7) + 1;
-            for (var i = 0; i < numberOfOccurences; i++)
+            if (@event.StartDate > from)
             {
-                var newStartDate = firstOccurenceDate.AddDays(7*i);
-                var newEndDate = newStartDate + duration;
-                populatedEvents.Add(new Event(newStartDate, newEndDate));
+                from = @event.StartDate;
+            }
+
+            var options = (WeeklyRecurringOptions) @event.RecurringOptions;
+            var populatedEvents = new List<Event>();
+
+            foreach (WeekDays singleWeekDay in Enum.GetValues(typeof (WeekDays)))
+            {
+                if (!options.WeekDays.HasFlag(singleWeekDay))
+                {
+                    continue;
+                }
+
+                var repeatEveryMultiplication = 7*options.RepeatEvery;
+                var firstOccurenceDate = GetFirstOccurenceDate(@from, singleWeekDay);
+                var duration = @event.EndDate - @event.StartDate;
+                var numberOfOccurences = (int)Math.Floor((to - firstOccurenceDate).TotalDays / repeatEveryMultiplication) + 1;
+
+                for (var i = 0; i < numberOfOccurences; i++)
+                {
+                    var newStartDate = firstOccurenceDate.AddDays(repeatEveryMultiplication * i);
+                    var newEndDate = newStartDate + duration;
+
+                    if (options.RepeatUntil == null || newStartDate <= options.RepeatUntil.EndDate)
+                    {
+                        populatedEvents.Add(new Event(newStartDate, newEndDate));
+                    }
+                }
             }
 
             return populatedEvents;
         }
 
-        private DateTime GetFirstOccurenceDate(DateTime @from, WeeklyRecurringOptions options)
+        /// <summary>
+        /// Helper method to calculate first specified week day since given date
+        /// </summary>
+        /// <param name="from">date date</param>
+        /// <param name="singleWeekDay">week day to find</param>
+        /// <remarks>This is internally used by Populate</remarks>
+        public DateTime GetFirstOccurenceDate(DateTime @from, WeekDays singleWeekDay)
         {
-            var weekDayOffset = ((int) Math.Log((int) options.WeekDays, 2));
+            var weekDayOffset = ((int)Math.Log((int)singleWeekDay, 2));
+            var fromWeekDayOffset = NormalizeDayOfWeekOffset(@from);
 
-            var fromWeekDayOffset = ((int) (@from.DayOfWeek - 1));
-            if (@from.DayOfWeek == DayOfWeek.Sunday)
+            if (weekDayOffset == fromWeekDayOffset)
             {
-                fromWeekDayOffset = 6; // Zero based week day
+                return @from;
             }
-            if (@from.DayOfWeek != DayOfWeek.Monday)
+
+            if (weekDayOffset < fromWeekDayOffset)
             {
                 weekDayOffset += 7 - fromWeekDayOffset;
             }
+            else
+            {
+                return @from.AddDays(weekDayOffset - fromWeekDayOffset);    
+            }
 
             return @from.AddDays(weekDayOffset);
+        }
+
+        /// <summary>
+        /// Normalizes DayOfWeek to a 0-based offset where Monday becomes first value (0).
+        /// </summary>
+        /// <param name="date">date to normalize</param>
+        private int NormalizeDayOfWeekOffset(DateTime date)
+        {
+            var fromWeekDayOffset = ((int) (date.DayOfWeek - 1));
+            if (date.DayOfWeek == DayOfWeek.Sunday)
+            {
+                fromWeekDayOffset = 6;
+            }
+
+            return fromWeekDayOffset;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Calendar.Api.Controllers;
 using Calendar.Helpers;
 using Calendar.Logic;
