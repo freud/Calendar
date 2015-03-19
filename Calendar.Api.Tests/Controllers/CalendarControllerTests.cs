@@ -26,12 +26,12 @@ namespace Calendar.Service.Tests.Controllers
             };
 
             var eventsService = Substitute.For<IEventsService>();
-            eventsService.GetEvents(now, now).Returns(fakeEvents);
+            eventsService.GetEvents(now, now, "UTC").Returns(fakeEvents);
 
             var controller = new CalendarController(eventsService);
 
             // Act
-            var listOfEvents = controller.GetEvents(now, now);
+            var listOfEvents = controller.GetEvents(now, now, "UTC");
 
             // Assert
             listOfEvents.ShouldAllBeEquivalentTo(fakeEvents);
@@ -49,10 +49,10 @@ namespace Calendar.Service.Tests.Controllers
             var controller = new CalendarController(eventsService);
 
             // Act
-            controller.GetEvents(@from, to);
+            controller.GetEvents(@from, to, "UTC");
 
             // Assert
-            eventsService.Received(1).GetEvents(from, to);
+            eventsService.Received(1).GetEvents(from, to, "UTC");
         }
 
     }

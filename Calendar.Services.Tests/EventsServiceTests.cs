@@ -2,6 +2,7 @@
 using Calendar.Helpers;
 using Calendar.Logic;
 using FluentAssertions;
+using NSubstitute;
 using NUnit.Framework;
 using Raven.Client;
 using System;
@@ -13,7 +14,8 @@ namespace Calendar.Services.Tests
     [TestFixture]
     public class EventsServiceTests
     {
-        private static DateTime _currentFakedTime = ApplicationTime.Current;
+        private static DateTime _currentUtcFakedTime = ApplicationTime.Current;
+        private static DateTime _currentLocalFakedTime = DateTime.SpecifyKind(TimeZoneInfo.ConvertTimeFromUtc(_currentUtcFakedTime, TimeZoneInfo.Local), DateTimeKind.Unspecified);
 
         [Test]
         public void GetEvents_GetAnyListOfEvents_ReturnsListOfEvents()
@@ -22,23 +24,25 @@ namespace Calendar.Services.Tests
             var eventsService = CreateDefaultService();
 
             // Act
-            var listOfEvents = eventsService.GetEvents(_currentFakedTime, _currentFakedTime);
+            var listOfEvents = eventsService.GetEvents(_currentLocalFakedTime, _currentLocalFakedTime, "UTC");
 
             // Assert
             listOfEvents.Should().NotBeNull();
         }
 
         [Test]
-        public void GetEvents_GetNonEmptyListOfEvents_ReturnsNonEmptyList()
+        public void GetEvents_GivenLocalFromToParamsAndFakedEventWithUtcDates_ReturnsEventWithLocalDates()
         {
             // Arrange
             var eventsService = CreateDefaultService();
+            var expectedEvent = new Event(_currentLocalFakedTime);
 
             // Act
-            var listOfEvents = eventsService.GetEvents(_currentFakedTime, _currentFakedTime);
+            var listOfEvents = eventsService.GetEvents(_currentLocalFakedTime, _currentLocalFakedTime, TimeZoneInfo.Local.Id);
 
             // Assert
-            listOfEvents.Should().NotBeEmpty();
+            listOfEvents.Count().Should().Be(1);
+            listOfEvents.First().Should().Be(expectedEvent);
         }
 
         [Test]
@@ -49,7 +53,7 @@ namespace Calendar.Services.Tests
             var eventsService = (IEventsService) new EventsService(store);
 
             // Act
-            var listOfEvents = eventsService.GetEvents(_currentFakedTime, _currentFakedTime);
+            var listOfEvents = eventsService.GetEvents(_currentLocalFakedTime, _currentLocalFakedTime, "UTC");
 
             // Assert
             listOfEvents.Should().BeEmpty();
@@ -59,38 +63,38 @@ namespace Calendar.Services.Tests
         {
             get
             {
-                yield return new TestCaseData(_currentFakedTime.Date.AddDays(-2), _currentFakedTime.Date.AddDays(-1), new[] 
+                yield return new TestCaseData(_currentLocalFakedTime.Date.AddDays(-2), _currentLocalFakedTime.Date.AddDays(-1), new[] 
                 {
-                    new Event(_currentFakedTime.Date.AddDays(-1))
+                    new Event(_currentLocalFakedTime.Date.AddDays(-1))
                 });
 
-                yield return new TestCaseData(_currentFakedTime.Date.AddDays(-1), _currentFakedTime.Date.AddDays(1), new[] 
+                yield return new TestCaseData(_currentLocalFakedTime.Date.AddDays(-1), _currentLocalFakedTime.Date.AddDays(1), new[] 
                 {
-                    new Event(_currentFakedTime.Date)
+                    new Event(_currentLocalFakedTime.Date)
                 });
 
-                yield return new TestCaseData(_currentFakedTime.Date.AddDays(-5), _currentFakedTime.Date.AddDays(1), new[] 
+                yield return new TestCaseData(_currentLocalFakedTime.Date.AddDays(-5), _currentLocalFakedTime.Date.AddDays(1), new[] 
                 {
-                    new Event(_currentFakedTime.Date),
-                    new Event(_currentFakedTime.Date.AddDays(10))
+                    new Event(_currentLocalFakedTime.Date),
+                    new Event(_currentLocalFakedTime.Date.AddDays(10))
                 });
 
-                yield return new TestCaseData(_currentFakedTime.Date.AddDays(-5), _currentFakedTime.Date.AddDays(1), new[] 
+                yield return new TestCaseData(_currentLocalFakedTime.Date.AddDays(-5), _currentLocalFakedTime.Date.AddDays(1), new[] 
                 {
-                    new Event(_currentFakedTime.Date.AddDays(-5)),
-                    new Event(_currentFakedTime.Date.AddDays(1))
+                    new Event(_currentLocalFakedTime.Date.AddDays(-5)),
+                    new Event(_currentLocalFakedTime.Date.AddDays(1))
                 });
 
-                yield return new TestCaseData(_currentFakedTime.Date.AddDays(-5), _currentFakedTime.Date.AddDays(1), new[] 
+                yield return new TestCaseData(_currentLocalFakedTime.Date.AddDays(-5), _currentLocalFakedTime.Date.AddDays(1), new[] 
                 {
-                    new Event(_currentFakedTime.Date.AddDays(-8)),
-                    new Event(_currentFakedTime.Date.AddDays(1))
+                    new Event(_currentLocalFakedTime.Date.AddDays(-8)),
+                    new Event(_currentLocalFakedTime.Date.AddDays(1))
                 });
 
-                yield return new TestCaseData(_currentFakedTime.Date.AddDays(-10), _currentFakedTime.Date.AddDays(100), new[] 
+                yield return new TestCaseData(_currentLocalFakedTime.Date.AddDays(-10), _currentLocalFakedTime.Date.AddDays(100), new[] 
                 {
-                    new Event(_currentFakedTime.Date.AddDays(-8)),
-                    new Event(_currentFakedTime.Date.AddDays(1))
+                    new Event(_currentLocalFakedTime.Date.AddDays(-8)),
+                    new Event(_currentLocalFakedTime.Date.AddDays(1))
                 });
             }
         }
@@ -103,7 +107,7 @@ namespace Calendar.Services.Tests
             var eventsService = new EventsService(store);
 
             // Act
-            var listOfEvents = eventsService.GetEvents(from, to).ToList();
+            var listOfEvents = eventsService.GetEvents(@from, to, "UTC").ToList();
 
             // Assert
             listOfEvents.Should().NotBeEmpty();
@@ -116,23 +120,118 @@ namespace Calendar.Services.Tests
             // Arrange
             var store = PrepareFakedEvents(new []
             {
-                new Event(_currentFakedTime.Date.AddDays(-2)),
-                new Event(_currentFakedTime.Date.AddDays(2))
+                new Event(_currentLocalFakedTime.Date.AddDays(-2)),
+                new Event(_currentLocalFakedTime.Date.AddDays(2))
             });
             var eventsService = new EventsService(store);
 
             // Act
-            var listOfEvents = eventsService.GetEvents(_currentFakedTime.Date.AddDays(-1), _currentFakedTime.Date.AddDays(1)).ToList();
+            var listOfEvents = eventsService.GetEvents(_currentLocalFakedTime.Date.AddDays(-1), _currentLocalFakedTime.Date.AddDays(1), "UTC").ToList();
 
             // Assert
             listOfEvents.Should().BeEmpty();
+        }
+
+        [Test]
+        public void GetEvents_GivenSpecifiedTimeZone_ReturnsEventsWithDatesWithCorrectTimeZone()
+        {
+            // Arrange
+            var timeZoneId = "Central European Standard Time";
+            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            var utcEventStartDate = _currentUtcFakedTime.Date;
+            var localEventStartDate = TimeZoneInfo.ConvertTimeFromUtc(utcEventStartDate, timeZoneInfo);
+
+            var expectedEvents = new[]
+            {
+                new Event(localEventStartDate)
+            };
+
+            var store = PrepareFakedEvents(new[]
+            {
+                new Event(utcEventStartDate)
+            });
+            var eventsService = new EventsService(store);
+
+            // Act
+            var listOfEvents = eventsService.GetEvents(_currentLocalFakedTime.Date.AddDays(-1), _currentLocalFakedTime.Date.AddDays(1), timeZoneId).ToList();
+
+            // Assert
+            listOfEvents.Should().BeEquivalentTo(expectedEvents);
+        }
+
+        [Test]
+        public void GetEvents_GiverSpecifiedWrongTimeZone_ThrowsInvalidOperationException()
+        {
+            // Arrange
+            var timeZoneId = "Wrong time zone";
+            var store = PrepareFakedEvents(new[]
+            {
+                new Event(DateTime.UtcNow)
+            });
+            var eventsService = new EventsService(store);
+
+            // Act
+            Action action = () => eventsService.GetEvents(_currentLocalFakedTime, _currentLocalFakedTime, timeZoneId);
+
+            // Assert
+            action.ShouldThrow<TimeZoneNotFoundException>();
+        }
+
+        [Test]
+        public void GetEvents_GivenWrongUtcFromTime_ThrowsArgumentException()
+        {
+            // Arrange
+            var timeZoneId = "Central European Standard Time";
+            var store = PrepareFakedEvents(new Event[] { });
+            var eventsService = new EventsService(store);
+
+            // Act
+            Action action = () => eventsService.GetEvents(DateTime.UtcNow, DateTime.Now, timeZoneId);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>();
+        }
+
+        [Test]
+        public void GetEvents_GivenWrongUtcToTime_ThrowsArgumentException()
+        {
+            // Arrange
+            var timeZoneId = "Central European Standard Time";
+            var store = PrepareFakedEvents(new Event[] { });
+            var eventsService = new EventsService(store);
+
+            // Act
+            Action action = () => eventsService.GetEvents(DateTime.Now, DateTime.UtcNow, timeZoneId);
+
+            // Assert
+            action.ShouldThrow<ArgumentException>();
+        }
+
+        [Test]
+        public void GetEvents_GivenFakedWeeklyScheduler_ChecksIfSchedulerIsCalledForGivenEventByService()
+        {
+            // Arrange
+            var timeZoneId = "Central European Standard Time";
+            var fakedEvent = new Event(_currentUtcFakedTime);
+            fakedEvent.RecurringOptions = new WeeklyRecurringOptions();
+
+            var scheduler = Substitute.For<IScheduler>();
+            scheduler.Populate(Arg.Any<Event>(), Arg.Any<DateTime>(), Arg.Any<DateTime>()).Returns(new List<Event>());
+            var store = PrepareFakedEvents(new [] { fakedEvent });
+            var eventsService = new EventsService(store, new[] { scheduler });
+
+            // Act
+            eventsService.GetEvents(_currentLocalFakedTime, _currentLocalFakedTime, timeZoneId);
+
+            // Assert
+            scheduler.Received(1).Populate(Arg.Any<Event>(), Arg.Any<DateTime>(), Arg.Any<DateTime>());
         }
 
         private IEventsService CreateDefaultService()
         {
             var store = PrepareFakedEvents(new[]
             {
-                new Event(_currentFakedTime)
+                new Event(_currentUtcFakedTime)
             });
 
             return new EventsService(store);

@@ -4,7 +4,7 @@ using Calendar.Logic;
 
 namespace Calendar.Services
 {
-    public class WeeklyEventScheduler
+    public class WeeklyEventScheduler : IScheduler
     {
         public List<Event> Populate(Event @event, DateTime @from, DateTime to)
         {
